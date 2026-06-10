@@ -17,7 +17,7 @@ export default async function HomePage() {
 
   const { data: config } = await supabase
     .from('store_config')
-    .select('logo_url, whatsapp_number, notification_email')
+    .select('logo_url, hero_image_url, whatsapp_number, notification_email')
     .eq('tenant_id', TENANT_ID)
     .single()
 
@@ -39,22 +39,33 @@ export default async function HomePage() {
       <main>
 
         {/* ── HERO ─────────────────────────────────────────────── */}
-        <section className="relative min-h-screen flex items-end pb-20 overflow-hidden bg-[#EDE8E1]">
+        <section
+          className="relative min-h-screen flex items-end pb-20 overflow-hidden bg-[#EDE8E1]"
+          style={config?.hero_image_url ? {
+            backgroundImage: `url(${config.hero_image_url})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          } : undefined}
+        >
+          {/* Overlay oscuro cuando hay imagen */}
+          {config?.hero_image_url && (
+            <div className="absolute inset-0 bg-black/40" />
+          )}
 
           {/* Texto hero */}
           <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
             <div className="max-w-xl opacity-0 animate-fade-up delay-100">
-              <p className="text-xs tracking-[0.25em] uppercase text-[var(--color-stone)] mb-4">
+              <p className={`text-xs tracking-[0.25em] uppercase mb-4 ${config?.hero_image_url ? 'text-white/70' : 'text-[var(--color-stone)]'}`}>
                 Nueva temporada
               </p>
-              <h1 className="font-display text-6xl md:text-8xl font-light leading-none text-[var(--color-charcoal)] mb-8">
+              <h1 className={`font-display text-6xl md:text-8xl font-light leading-none mb-8 ${config?.hero_image_url ? 'text-white' : 'text-[var(--color-charcoal)]'}`}>
                 Estilo que<br />
                 <em className="italic">trasciende</em><br />
                 tendencia
               </h1>
               <Link
                 href="/tienda"
-                className="inline-flex items-center gap-3 text-xs tracking-[0.2em] uppercase border-b border-[var(--color-charcoal)] pb-1 text-[var(--color-charcoal)] hover:text-[var(--color-stone)] hover:border-[var(--color-stone)] transition-colors"
+                className={`inline-flex items-center gap-3 text-xs tracking-[0.2em] uppercase border-b pb-1 transition-colors ${config?.hero_image_url ? 'border-white/70 text-white hover:border-white hover:text-white/80' : 'border-[var(--color-charcoal)] text-[var(--color-charcoal)] hover:text-[var(--color-stone)] hover:border-[var(--color-stone)]'}`}
               >
                 Ver colección <ArrowRight size={14} />
               </Link>
