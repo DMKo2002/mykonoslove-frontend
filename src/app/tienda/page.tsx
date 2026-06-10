@@ -5,7 +5,15 @@ import ProductCard from '@/components/shop/ProductCard'
 import CatalogFilters from '@/components/shop/CatalogFilters'
 
 interface Props {
-  searchParams: { cat?: string; orden?: string; q?: string }
+  searchParams: {
+    cat?: string
+    orden?: string
+    q?: string
+    color?: string
+    precio_min?: string
+    precio_max?: string
+    descuento?: string
+  }
 }
 
 export const metadata = { title: 'Tienda' }
@@ -17,34 +25,98 @@ export default async function TiendaPage({ searchParams }: Props) {
   const { data: config } = await supabase.from('store_config').select('logo_url, whatsapp_number, notification_email').eq('tenant_id', TENANT_ID).single()
   const { data: categories } = await supabase.from('categories').select('id, name, slug').eq('tenant_id', TENANT_ID).eq('active', true).order('sort_order')
 
+  // Parse filter params
+  const precioMin = searchParams.precio_min ? Number(searchParams.precio_min) : undefined
+  const precioMax = searchParams.precio_max ? Number(searchParams.precio_max) : undefined
+  const soloDescuento = searchParams.descuento === '1'
+
+  // Fetch all active products — we'll sort/filter with JS for price and discount
   let query = supabase
     .from('products')
-    .select('id, name, slug, product_images(*), variants(price_rules(*))')
+    .select('id, name, slug, product_images(*), variants(color, size, price_rules(type, price, compare_at_price, active, min_qty))')
     .eq('tenant_id', TENANT_ID)
     .eq('active', true)
 
+  // Filter by category
   if (searchParams.cat) {
-    const { data: cat } = await supabase.from('categories').select('id').eq('tenant_id', TENANT_ID).eq('slug', searchParams.cat).single()
+    const { data: cat } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('tenant_id', TENANT_ID)
+      .eq('slug', searchParams.cat)
+      .single()
     if (cat) query = query.eq('category_id', cat.id)
   }
 
+  // Filter by name/search
   if (searchParams.q) {
     query = query.ilike('name', `%${searchParams.q}%`)
   }
 
-  // Orden
-  switch (searchParams.orden) {
-    case 'precio-asc':
-      query = query.order('created_at', { ascending: true })
-      break
-    case 'precio-desc':
-      query = query.order('created_at', { ascending: false })
-      break
-    default:
-      query = query.order('created_at', { ascending: false })
+  // Always fetch newest first (price ordering done in JS below)
+  query = query.order('created_at', { ascending: false })
+
+  const { data: allProducts } = await query
+
+  // ── Post-fetch JS filtering ─────────────────────────────
+
+  let products = (allProducts ?? []).map((product: any) => {
+    const retailRule = product.variants?.[0]?.price_rules?.find(
+      (p: any) => p.type === 'retail' && p.active && (p.min_qty ?? 1) <= 1
+    )
+    const wholesaleRule = product.variants?.[0]?.price_rules?.find(
+      (p: any) => p.type === 'wholesale' && p.active
+    )
+    const retailPrice: number | undefined = retailRule?.price
+    const retailCompareAt: number | undefined = retailRule?.compare_at_price ?? undefined
+    const wholesalePrice: number | undefined = wholesaleRule?.price
+
+    const colors = [...new Set((product.variants ?? []).map((v: any) => v.color).filter(Boolean))] as string[]
+    const sizes = [...new Set((product.variants ?? []).map((v: any) => v.size).filter(Boolean))] as string[]
+    const cover = product.product_images?.find((img: any) => img.is_cover) ?? product.product_images?.[0]
+
+    return { ...product, retailPrice, retailCompareAt, wholesalePrice, colors, sizes, cover }
+  })
+
+  // Filter by color
+  if (searchParams.color) {
+    const colorFilter = searchParams.color.toLowerCase().trim()
+    products = products.filter((p: any) =>
+      p.colors.some((c: string) => c.toLowerCase().trim() === colorFilter)
+    )
   }
 
-  const { data: products } = await query
+  // Filter by price range
+  if (precioMin !== undefined) {
+    products = products.filter((p: any) => p.retailPrice !== undefined && p.retailPrice >= precioMin)
+  }
+  if (precioMax !== undefined) {
+    products = products.filter((p: any) => p.retailPrice !== undefined && p.retailPrice <= precioMax)
+  }
+
+  // Filter "solo descuento"
+  if (soloDescuento) {
+    products = products.filter((p: any) =>
+      p.retailCompareAt && p.retailCompareAt > (p.retailPrice ?? 0)
+    )
+  }
+
+  // Sorting
+  if (searchParams.orden === 'precio-asc') {
+    products = [...products].sort((a: any, b: any) => (a.retailPrice ?? 0) - (b.retailPrice ?? 0))
+  } else if (searchParams.orden === 'precio-desc') {
+    products = [...products].sort((a: any, b: any) => (b.retailPrice ?? 0) - (a.retailPrice ?? 0))
+  } else if (searchParams.orden === 'nombre-asc') {
+    products = [...products].sort((a: any, b: any) => a.name.localeCompare(b.name, 'es'))
+  }
+  // default: already ordered by created_at desc from Supabase
+
+  // Available colors for filter sidebar (from ALL products before color filter)
+  const allColors = [...new Set(
+    (allProducts ?? []).flatMap((p: any) =>
+      (p.variants ?? []).map((v: any) => v.color).filter(Boolean)
+    )
+  )].sort() as string[]
 
   const storeName = tenant?.name ?? 'TIENDA'
 
@@ -62,7 +134,7 @@ export default async function TiendaPage({ searchParams }: Props) {
               <h1 className="font-display text-5xl font-light text-[var(--color-charcoal)]">Tienda</h1>
             </div>
             <p className="text-sm text-[var(--color-stone)] font-light pb-1">
-              {products?.length ?? 0} {products?.length === 1 ? 'producto' : 'productos'}
+              {products.length} {products.length === 1 ? 'producto' : 'productos'}
             </p>
           </div>
         </div>
@@ -71,46 +143,48 @@ export default async function TiendaPage({ searchParams }: Props) {
           <div className="flex flex-col md:flex-row gap-12">
 
             {/* Sidebar filtros */}
-            <aside className="w-full md:w-48 flex-shrink-0">
+            <aside className="w-full md:w-52 flex-shrink-0">
               <CatalogFilters
                 categories={categories ?? []}
+                availableColors={allColors}
+                maxPrice={0}
                 currentCat={searchParams.cat}
                 currentOrden={searchParams.orden}
+                currentQ={searchParams.q}
+                currentColor={searchParams.color}
+                currentPrecioMin={precioMin}
+                currentPrecioMax={precioMax}
+                currentDescuento={soloDescuento}
               />
             </aside>
 
             {/* Grid productos */}
             <div className="flex-1">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
-                {products?.map((product: any, i: number) => {
-                  const cover = product.product_images?.find((img: any) => img.is_cover) ?? product.product_images?.[0]
-                  const retailPrice = product.variants?.[0]?.price_rules?.find((p: any) => p.type === 'retail' && p.active)?.price
-                  const wholesalePrice = product.variants?.[0]?.price_rules?.find((p: any) => p.type === 'wholesale' && p.active)?.price
+                {products.map((product: any, i: number) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    slug={product.slug}
+                    coverUrl={product.cover?.url}
+                    retailPrice={product.retailPrice}
+                    retailCompareAt={product.retailCompareAt}
+                    wholesalePrice={product.wholesalePrice}
+                    colors={product.colors}
+                    sizes={product.sizes}
+                    index={i}
+                  />
+                ))}
 
-                  const colors = [...new Set((product.variants ?? []).map((v: any) => v.color).filter(Boolean))] as string[]
-                  const sizes = [...new Set((product.variants ?? []).map((v: any) => v.size).filter(Boolean))] as string[]
-
-                  return (
-                    <ProductCard
-                      key={product.id}
-                      id={product.id}
-                      name={product.name}
-                      slug={product.slug}
-                      coverUrl={cover?.url}
-                      retailPrice={retailPrice}
-                      wholesalePrice={wholesalePrice}
-                      colors={colors}
-                      sizes={sizes}
-                      index={i}
-                    />
-                  )
-                })}
-
-                {(!products || products.length === 0) && (
+                {products.length === 0 && (
                   <div className="col-span-3 py-24 text-center">
                     <p className="font-display text-2xl font-light text-[var(--color-stone)]">
-                      No hay productos en esta categoría
+                      No hay productos con los filtros seleccionados
                     </p>
+                    <a href="/tienda" className="text-sm text-[var(--color-stone)] underline mt-3 inline-block hover:text-[var(--color-charcoal)]">
+                      Ver todos los productos
+                    </a>
                   </div>
                 )}
               </div>
