@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { ShoppingBag, Menu, X, Search } from 'lucide-react'
+import { ShoppingBag, Menu, X, Search, User } from 'lucide-react'
 import { useCart } from '@/components/shop/CartContext'
 
 interface NavbarProps {
@@ -47,8 +47,8 @@ export default function Navbar({ storeName = 'TIENDA', logoUrl }: NavbarProps) {
             <button className="text-[var(--color-charcoal)] hover:text-[var(--color-stone)] transition-colors">
               <Search size={18} strokeWidth={1.5} />
             </button>
-            <Link href="/mi-cuenta" className="text-xs tracking-[0.15em] uppercase text-[var(--color-charcoal)] hover:text-[var(--color-stone)] transition-colors">
-              Mi cuenta
+            <Link href="/cuenta" className="text-[var(--color-charcoal)] hover:text-[var(--color-stone)] transition-colors" title="Mi cuenta">
+              <User size={18} strokeWidth={1.5} />
             </Link>
             <Link href="/carrito" className="relative text-[var(--color-charcoal)] hover:text-[var(--color-stone)] transition-colors">
               <ShoppingBag size={20} strokeWidth={1.5} />
@@ -78,7 +78,7 @@ export default function Navbar({ storeName = 'TIENDA', logoUrl }: NavbarProps) {
 
       {menuOpen && (
         <div className="fixed inset-0 z-40 bg-[var(--color-warm-white)] flex flex-col items-center justify-center gap-10 md:hidden">
-          {['/', '/tienda', '/contacto', '/mi-cuenta'].map((href, i) => {
+          {['/', '/tienda', '/contacto', '/cuenta'].map((href, i) => {
             const labels = ['Home', 'Tienda', 'Contacto', 'Mi cuenta']
             return (
               <Link key={href} href={href} onClick={() => setMenuOpen(false)}
