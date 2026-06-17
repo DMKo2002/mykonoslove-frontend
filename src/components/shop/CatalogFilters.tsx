@@ -4,10 +4,17 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useState } from 'react'
 import { Search, X } from 'lucide-react'
 
+interface Subcategory {
+  id: string
+  name: string
+  slug: string
+}
+
 interface Category {
   id: string
   name: string
   slug: string
+  subcategories: Subcategory[]
 }
 
 interface CatalogFiltersProps {
@@ -156,6 +163,19 @@ export default function CatalogFilters({
                 className={`text-sm font-light transition-colors ${currentCat === cat.slug ? 'text-[var(--color-charcoal)] border-b border-[var(--color-charcoal)]' : 'text-[var(--color-stone)] hover:text-[var(--color-charcoal)]'}`}>
                 {cat.name}
               </button>
+              {/* Subcategorías */}
+              {cat.subcategories.length > 0 && (
+                <ul className="mt-1.5 ml-3 space-y-1.5 border-l border-[var(--color-border)] pl-3">
+                  {cat.subcategories.map(sub => (
+                    <li key={sub.id}>
+                      <button onClick={() => router.push(buildUrl({ cat: sub.slug }))}
+                        className={`text-xs font-light transition-colors ${currentCat === sub.slug ? 'text-[var(--color-charcoal)] border-b border-[var(--color-charcoal)]' : 'text-[var(--color-stone)] hover:text-[var(--color-charcoal)]'}`}>
+                        {sub.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))}
         </ul>

@@ -23,7 +23,21 @@ export default async function TiendaPage({ searchParams }: Props) {
 
   const { data: tenant } = await supabase.from('tenants').select('name').eq('id', TENANT_ID).single()
   const { data: config } = await supabase.from('store_config').select('logo_url, whatsapp_number, notification_email').eq('tenant_id', TENANT_ID).single()
-  const { data: categories } = await supabase.from('categories').select('id, name, slug').eq('tenant_id', TENANT_ID).eq('active', true).order('sort_order')
+  // Fetch all active categories (top-level + subcategories)
+  const { data: allCategories } = await supabase
+    .from('categories')
+    .select('id, name, slug, parent_id')
+    .eq('tenant_id', TENANT_ID)
+    .eq('active', true)
+    .order('sort_order')
+
+  // Build tree: only top-level categories with their subcategories nested
+  const categories = (allCategories ?? [])
+    .filter((c: any) => !c.parent_id)
+    .map((c: any) => ({
+      ...c,
+      subcategories: (allCategories ?? []).filter((s: any) => s.parent_id === c.id),
+    }))
 
   // Parse filter params
   const precioMin = searchParams.precio_min ? Number(searchParams.precio_min) : undefined
@@ -37,15 +51,19 @@ export default async function TiendaPage({ searchParams }: Props) {
     .eq('tenant_id', TENANT_ID)
     .eq('active', true)
 
-  // Filter by category
+  // Filter by category (includes subcategories when a top-level cat is selected)
   if (searchParams.cat) {
-    const { data: cat } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('tenant_id', TENANT_ID)
-      .eq('slug', searchParams.cat)
-      .single()
-    if (cat) query = query.eq('category_id', cat.id)
+    const matchedCat = (allCategories ?? []).find((c: any) => c.slug === searchParams.cat)
+    if (matchedCat) {
+      // Find subcategories of this category (if any)
+      const subIds = (allCategories ?? [])
+        .filter((c: any) => c.parent_id === matchedCat.id)
+        .map((c: any) => c.id)
+      const ids = [matchedCat.id, ...subIds]
+      query = ids.length === 1
+        ? query.eq('category_id', ids[0])
+        : query.in('category_id', ids)
+    }
   }
 
   // Filter by name/search
