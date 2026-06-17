@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import AddToCartButton from '@/components/shop/AddToCartButton'
-import { ImageOff } from 'lucide-react'
+import ProductGallery from '@/components/shop/ProductGallery'
 
 interface Props {
   params: { slug: string }
@@ -34,8 +34,11 @@ export default async function ProductoPage({ params }: Props) {
 
   if (!product) notFound()
 
-  const images = product.product_images ?? []
-  const cover = images.find((i: any) => i.is_cover) ?? images[0]
+  const images = (product.product_images ?? []).sort((a: any, b: any) => {
+    if (a.is_cover) return -1
+    if (b.is_cover) return 1
+    return (a.sort_order ?? 0) - (b.sort_order ?? 0)
+  })
   const storeName = tenant?.name ?? 'TIENDA'
 
   // Agrupar variantes por talle y color
@@ -51,29 +54,7 @@ export default async function ProductoPage({ params }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
 
             {/* Galería de imágenes */}
-            <div className="space-y-3">
-              {/* Imagen principal */}
-              <div className="aspect-[3/4] bg-[#F2EEE9] overflow-hidden">
-                {cover ? (
-                  <img src={cover.url} alt={product.name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <ImageOff size={40} className="text-[var(--color-border)]" />
-                  </div>
-                )}
-              </div>
-
-              {/* Miniaturas */}
-              {images.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {images.map((img: any) => (
-                    <div key={img.id} className="aspect-square bg-[#F2EEE9] overflow-hidden">
-                      <img src={img.url} alt={product.name} className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <ProductGallery images={images} productName={product.name} />
 
             {/* Info del producto */}
             <div className="py-4">
@@ -112,7 +93,7 @@ export default async function ProductoPage({ params }: Props) {
                   id: product.id,
                   name: product.name,
                   variants: product.variants ?? [],
-                  coverUrl: cover?.url ?? null,
+                  coverUrl: images[0]?.url ?? null,
                 }}
                 sizes={sizes as string[]}
                 colors={colors as string[]}
