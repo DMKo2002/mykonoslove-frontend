@@ -78,21 +78,64 @@ export default async function HomePage() {
       <main>
 
         {/* ── HERO ─────────────────────────────────────────────── */}
-        <section className="flex min-h-[88vh] bg-[#F0EFEC] overflow-hidden">
+        {/* Canvas: 100vw. Imagen principal: 81% desde la izquierda. Zona derecha: 19% fondo liso */}
+        <section className="relative w-full bg-[#F0EFEC] overflow-hidden" style={{ height: '85vh' }}>
 
-          {/* Thumbnails izquierda */}
-          <div className="hidden md:flex flex-col w-44 flex-shrink-0 p-3 gap-3">
-            <div className="flex-1 bg-[#DDD8D0] overflow-hidden">
-              {config?.hero_image_url && (
-                <img src={config.hero_image_url} alt="" className="w-full h-full object-cover opacity-60" />
-              )}
+          {/* Imagen principal — 81% ancho, full height */}
+          <div className="absolute left-0 top-0 bottom-0 overflow-hidden group/hero" style={{ width: '81%' }}>
+            {config?.hero_image_url ? (
+              <img
+                src={config.hero_image_url}
+                alt="Hero"
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/hero:scale-[1.03]"
+              />
+            ) : (
+              <div className="w-full h-full bg-[#E0D8CE]" />
+            )}
+
+            {/* Overlay gradiente para legibilidad del texto */}
+            <div className="absolute inset-0 bg-gradient-to-l from-black/45 via-transparent to-transparent" />
+
+            {/* 2 Thumbnails superpuestos — arriba izquierda sobre la imagen */}
+            <div className="absolute top-8 left-8 flex gap-3 z-10">
+              {/* Thumbnail 1 */}
+              <div
+                className="overflow-hidden group/t1 cursor-pointer"
+                style={{ width: '18.5vw', height: 'calc(18.5vw * 1.3125)' }}
+              >
+                {(products as any)?.[0]?.product_images?.[0]?.url ? (
+                  <img
+                    src={(products as any)[0].product_images[0].url}
+                    alt=""
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover/t1:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#8B7355] transition-transform duration-500 group-hover/t1:scale-105" />
+                )}
+              </div>
+
+              {/* Thumbnail 2 */}
+              <div
+                className="overflow-hidden group/t2 cursor-pointer"
+                style={{ width: '18.5vw', height: 'calc(18.5vw * 1.3125)' }}
+              >
+                {(products as any)?.[1]?.product_images?.[0]?.url ? (
+                  <img
+                    src={(products as any)[1].product_images[0].url}
+                    alt=""
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover/t2:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#7B3535] transition-transform duration-500 group-hover/t2:scale-105" />
+                )}
+              </div>
             </div>
-            <div className="flex-1 overflow-hidden" style={{ backgroundColor: '#C8C4BE' }}>
-              {(products as any)?.[0]?.product_images?.[0]?.url && (
-                <img src={(products as any)[0].product_images[0].url} alt="" className="w-full h-full object-cover opacity-75" />
-              )}
-            </div>
-            <div className="flex gap-2 mt-1">
+
+            {/* Flechas — debajo de los thumbnails */}
+            <div
+              className="absolute left-8 z-10 flex gap-2"
+              style={{ top: 'calc(2rem + (18.5vw * 1.3125) + 1rem)' }}
+            >
               <button className="w-9 h-9 bg-[var(--color-black)] text-white flex items-center justify-center hover:bg-[var(--color-accent)] transition-colors">
                 <ChevronLeft size={16} />
               </button>
@@ -100,23 +143,9 @@ export default async function HomePage() {
                 <ChevronRight size={16} />
               </button>
             </div>
-          </div>
 
-          {/* Imagen principal + texto */}
-          <div className="flex-1 relative overflow-hidden">
-            {config?.hero_image_url ? (
-              <img
-                src={config.hero_image_url}
-                alt="Hero"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            ) : (
-              <div className="absolute inset-0 bg-[#E0D8CE]" />
-            )}
-
-            <div className="absolute inset-0 bg-gradient-to-l from-black/50 via-black/10 to-transparent" />
-
-            <div className="absolute right-12 top-1/2 -translate-y-1/2 max-w-xs text-right">
+            {/* Texto hero — sobre la imagen, lado derecho */}
+            <div className="absolute right-10 top-1/2 -translate-y-1/2 max-w-xs text-right z-10">
               <p className="text-xs tracking-[0.25em] uppercase text-white/70 mb-4">
                 Fashion Exclusive Collection
               </p>
@@ -126,8 +155,8 @@ export default async function HomePage() {
                 2026
               </h1>
               <p className="text-sm text-white/80 mb-7 font-light leading-relaxed">
-                Piezas únicas diseñadas para quienes<br />
-                buscan estilo y distinción.
+                Piezas únicas diseñadas para<br />
+                quienes buscan estilo y distinción.
               </p>
               <div className="flex items-center gap-4 justify-end">
                 <Link
@@ -145,6 +174,9 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
+
+          {/* Zona derecha — 19% fondo liso */}
+          <div className="absolute right-0 top-0 bottom-0 bg-[#F0EFEC]" style={{ width: '19%' }} />
         </section>
 
         {/* ── FEATURES BAR ─────────────────────────────────────── */}

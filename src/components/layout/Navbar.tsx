@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { ShoppingBag, Menu, X, Search, User } from 'lucide-react'
+import { ShoppingBag, Menu, X } from 'lucide-react'
 import { useCart } from '@/components/shop/CartContext'
 
 interface NavbarProps {
@@ -10,23 +10,42 @@ interface NavbarProps {
   logoUrl?: string | null
 }
 
+function IconInstagram() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+    </svg>
+  )
+}
+
+function IconFacebook() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+    </svg>
+  )
+}
+
+const NAV_LINKS = [
+  { href: '/', label: 'Home' },
+  { href: '/tienda', label: 'Shop' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/contacto', label: 'Contacto' },
+]
+
 export default function Navbar({ storeName = 'MYKONOSLOVE', logoUrl }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const { count } = useCart()
 
-  const navLinks = [
-    { href: '/', label: 'HOME' },
-    { href: '/tienda', label: 'SHOP' },
-    { href: '/contacto', label: 'CONTACT' },
-  ]
-
   return (
     <>
       <header className="sticky top-0 left-0 right-0 z-50 bg-white border-b border-[var(--color-border)]">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="w-full px-6 h-16 flex items-center">
 
-          {/* Logo */}
-          <Link href="/" className="flex-shrink-0">
+          {/* Logo — extremo izquierdo */}
+          <Link href="/" className="flex-shrink-0 mr-10">
             {logoUrl ? (
               <img src={logoUrl} alt={storeName} className="h-7 object-contain" />
             ) : (
@@ -36,9 +55,9 @@ export default function Navbar({ storeName = 'MYKONOSLOVE', logoUrl }: NavbarPro
             )}
           </Link>
 
-          {/* Nav desktop */}
-          <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map(link => (
+          {/* Nav links — lado izquierdo de la imagen de cabecera */}
+          <nav className="hidden md:flex items-center gap-8 flex-1">
+            {NAV_LINKS.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -50,14 +69,29 @@ export default function Navbar({ storeName = 'MYKONOSLOVE', logoUrl }: NavbarPro
             ))}
           </nav>
 
-          {/* Íconos derecha */}
-          <div className="hidden md:flex items-center gap-5">
-            <button className="text-[var(--color-black)] hover:text-[var(--color-accent)] transition-colors">
-              <Search size={18} strokeWidth={1.5} />
-            </button>
-            <Link href="/cuenta" className="text-[var(--color-black)] hover:text-[var(--color-accent)] transition-colors">
-              <User size={18} strokeWidth={1.5} />
-            </Link>
+          {/* Carrito + redes — extremo derecho */}
+          <div className="hidden md:flex items-center gap-5 flex-shrink-0">
+            {/* Instagram */}
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--color-black)] hover:text-[var(--color-accent)] transition-colors"
+              aria-label="Instagram"
+            >
+              <IconInstagram />
+            </a>
+            {/* Facebook */}
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--color-black)] hover:text-[var(--color-accent)] transition-colors"
+              aria-label="Facebook"
+            >
+              <IconFacebook />
+            </a>
+            {/* Carrito */}
             <Link href="/carrito" className="relative text-[var(--color-black)] hover:text-[var(--color-accent)] transition-colors">
               <ShoppingBag size={18} strokeWidth={1.5} />
               {count > 0 && (
@@ -69,7 +103,7 @@ export default function Navbar({ storeName = 'MYKONOSLOVE', logoUrl }: NavbarPro
           </div>
 
           {/* Mobile */}
-          <div className="md:hidden flex items-center gap-4">
+          <div className="md:hidden flex items-center gap-4 ml-auto">
             <Link href="/carrito" className="relative">
               <ShoppingBag size={20} strokeWidth={1.5} />
               {count > 0 && (
@@ -88,7 +122,7 @@ export default function Navbar({ storeName = 'MYKONOSLOVE', logoUrl }: NavbarPro
       {/* Mobile menu */}
       {menuOpen && (
         <div className="fixed inset-0 z-40 bg-white flex flex-col items-center justify-center gap-8 md:hidden">
-          {navLinks.map(link => (
+          {NAV_LINKS.map(link => (
             <Link
               key={link.href}
               href={link.href}
