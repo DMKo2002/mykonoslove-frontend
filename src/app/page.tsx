@@ -43,9 +43,18 @@ export default async function HomePage() {
 
   const { data: config } = await supabase
     .from('store_config')
-    .select('logo_url, hero_image_url, whatsapp_number, notification_email, instagram_url, facebook_url, tiktok_url, pickup_address, pickup_enabled, branches')
+    .select('logo_url, whatsapp_number, instagram_url, facebook_url, tiktok_url, pickup_address, pickup_enabled, branches')
     .eq('tenant_id', TENANT_ID)
     .single()
+
+  // Imágenes configurables desde panel Personalización
+  const { data: assetsRows } = await supabase
+    .from('store_assets')
+    .select('slot, url')
+    .eq('tenant_id', TENANT_ID)
+
+  const asset = (slot: string): string | null =>
+    assetsRows?.find(a => a.slot === slot)?.url ?? null
 
   const { data: products } = await supabase
     .from('products')
@@ -79,13 +88,14 @@ export default async function HomePage() {
 
         {/* ── HERO ─────────────────────────────────────────────── */}
         {/* Canvas: 100vw. Imagen principal: 81% desde la izquierda. Zona derecha: 19% fondo liso */}
-        <section className="relative w-full bg-[#F0EFEC] overflow-hidden" style={{ height: '85vh' }}>
+        {/* Navbar es fixed+transparente → hero ocupa 100vh desde el borde superior */}
+        <section className="relative w-full bg-[#F0EFEC] overflow-hidden" style={{ height: '100vh' }}>
 
-          {/* Imagen principal — 81% ancho, full height */}
+          {/* Imagen principal — 81% ancho, full height, con hover scale */}
           <div className="absolute left-0 top-0 bottom-0 overflow-hidden group/hero" style={{ width: '81%' }}>
-            {config?.hero_image_url ? (
+            {asset('hero_main') ? (
               <img
-                src={config.hero_image_url}
+                src={asset('hero_main')!}
                 alt="Hero"
                 className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/hero:scale-[1.03]"
               />
@@ -93,19 +103,19 @@ export default async function HomePage() {
               <div className="w-full h-full bg-[#E0D8CE]" />
             )}
 
-            {/* Overlay gradiente para legibilidad del texto */}
+            {/* Overlay gradiente */}
             <div className="absolute inset-0 bg-gradient-to-l from-black/45 via-transparent to-transparent" />
 
-            {/* 2 Thumbnails superpuestos — arriba izquierda sobre la imagen */}
-            <div className="absolute top-8 left-8 flex gap-3 z-10">
+            {/* 2 Thumbnails superpuestos — ABAJO izquierda */}
+            <div className="absolute bottom-10 left-8 flex gap-3 z-10">
               {/* Thumbnail 1 */}
               <div
                 className="overflow-hidden group/t1 cursor-pointer"
                 style={{ width: '18.5vw', height: 'calc(18.5vw * 1.3125)' }}
               >
-                {(products as any)?.[0]?.product_images?.[0]?.url ? (
+                {asset('hero_thumb_1') ? (
                   <img
-                    src={(products as any)[0].product_images[0].url}
+                    src={asset('hero_thumb_1')!}
                     alt=""
                     className="w-full h-full object-cover transition-transform duration-500 group-hover/t1:scale-105"
                   />
@@ -119,9 +129,9 @@ export default async function HomePage() {
                 className="overflow-hidden group/t2 cursor-pointer"
                 style={{ width: '18.5vw', height: 'calc(18.5vw * 1.3125)' }}
               >
-                {(products as any)?.[1]?.product_images?.[0]?.url ? (
+                {asset('hero_thumb_2') ? (
                   <img
-                    src={(products as any)[1].product_images[0].url}
+                    src={asset('hero_thumb_2')!}
                     alt=""
                     className="w-full h-full object-cover transition-transform duration-500 group-hover/t2:scale-105"
                   />
@@ -131,11 +141,8 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Flechas — debajo de los thumbnails */}
-            <div
-              className="absolute left-8 z-10 flex gap-2"
-              style={{ top: 'calc(2rem + (18.5vw * 1.3125) + 1rem)' }}
-            >
+            {/* Flechas — debajo de los thumbnails (en el borde inferior) */}
+            <div className="absolute bottom-3 left-8 z-10 flex gap-2">
               <button className="w-9 h-9 bg-[var(--color-black)] text-white flex items-center justify-center hover:bg-[var(--color-accent)] transition-colors">
                 <ChevronLeft size={16} />
               </button>
@@ -201,25 +208,35 @@ export default async function HomePage() {
         {/* ── COLECCIONES ──────────────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-6 pb-20">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {collections.map((col, i) => (
-              <Link
-                key={i}
-                href={`/tienda?categoria=${col.slug}`}
-                className="group relative overflow-hidden aspect-[4/5] block"
-                style={{ backgroundColor: col.palette.bg }}
-              >
-                <div className="absolute inset-0 bg-black/5 group-hover:bg-black/15 transition-colors" />
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h2 className="text-2xl font-extrabold text-[var(--color-black)] mb-1">{col.name}</h2>
-                  <p className="text-xs text-[var(--color-gray)] mb-4 leading-relaxed">
-                    Quisque condimentum ipsum at velit hendrerit venenatis.
-                  </p>
-                  <span className="text-xs font-bold tracking-[0.15em] uppercase border-b-2 border-[var(--color-black)] pb-0.5 group-hover:text-[var(--color-accent)] group-hover:border-[var(--color-accent)] transition-colors">
-                    DISCOVER MORE
-                  </span>
-                </div>
-              </Link>
-            ))}
+            {collections.map((col, i) => {
+              const colImg = asset(`collection_${i + 1}`)
+              return (
+                <Link
+                  key={i}
+                  href={`/tienda?categoria=${col.slug}`}
+                  className="group relative overflow-hidden aspect-[4/5] block"
+                  style={{ backgroundColor: col.palette.bg }}
+                >
+                  {colImg && (
+                    <img
+                      src={colImg}
+                      alt={col.name}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-black/5 group-hover:bg-black/20 transition-colors" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <h2 className={`text-2xl font-extrabold mb-1 ${colImg ? 'text-white' : 'text-[var(--color-black)]'}`}>{col.name}</h2>
+                    <p className={`text-xs mb-4 leading-relaxed ${colImg ? 'text-white/70' : 'text-[var(--color-gray)]'}`}>
+                      Quisque condimentum ipsum at velit hendrerit venenatis.
+                    </p>
+                    <span className={`text-xs font-bold tracking-[0.15em] uppercase border-b-2 pb-0.5 group-hover:text-[var(--color-accent)] group-hover:border-[var(--color-accent)] transition-colors ${colImg ? 'text-white border-white' : 'text-[var(--color-black)] border-[var(--color-black)]'}`}>
+                      DISCOVER MORE
+                    </span>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </section>
 
@@ -293,12 +310,22 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {BLOG_POSTS.map((post, i) => (
+            {BLOG_POSTS.map((post, i) => {
+              const blogImg = asset(`blog_${i + 1}`)
+              return (
               <article key={i} className="group cursor-pointer">
                 <div
-                  className="aspect-[4/3] mb-5 overflow-hidden"
+                  className="aspect-[4/3] mb-5 overflow-hidden relative"
                   style={{ backgroundColor: post.bg }}
-                />
+                >
+                  {blogImg && (
+                    <img
+                      src={blogImg}
+                      alt={post.title}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                    />
+                  )}
+                </div>
                 <h3 className="text-base font-bold text-[var(--color-black)] mb-1 group-hover:text-[var(--color-accent)] transition-colors">
                   {post.title}
                 </h3>
@@ -308,7 +335,8 @@ export default async function HomePage() {
                   READ MORE
                 </span>
               </article>
-            ))}
+              )
+            })}
           </div>
         </section>
 

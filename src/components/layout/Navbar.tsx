@@ -41,7 +41,7 @@ export default function Navbar({ storeName = 'MYKONOSLOVE', logoUrl }: NavbarPro
 
   return (
     <>
-      <header className="sticky top-0 left-0 right-0 z-50 bg-white border-b border-[var(--color-border)]">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
         <div className="w-full px-6 h-16 flex items-center">
 
           {/* Logo — extremo izquierdo */}
@@ -49,7 +49,7 @@ export default function Navbar({ storeName = 'MYKONOSLOVE', logoUrl }: NavbarPro
             {logoUrl ? (
               <img src={logoUrl} alt={storeName} className="h-7 object-contain" />
             ) : (
-              <span className="text-base font-bold tracking-tight text-[var(--color-black)]">
+              <span className="text-base font-bold tracking-tight text-white">
                 {storeName}
               </span>
             )}
@@ -61,7 +61,7 @@ export default function Navbar({ storeName = 'MYKONOSLOVE', logoUrl }: NavbarPro
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-xs font-medium tracking-[0.12em] text-[var(--color-black)] hover:text-[var(--color-accent)] transition-colors relative group"
+                className="text-xs font-medium tracking-[0.12em] text-white hover:text-[var(--color-accent)] transition-colors relative group"
               >
                 {link.label}
                 <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[var(--color-accent)] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
@@ -76,7 +76,7 @@ export default function Navbar({ storeName = 'MYKONOSLOVE', logoUrl }: NavbarPro
               href="https://instagram.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[var(--color-black)] hover:text-[var(--color-accent)] transition-colors"
+              className="text-white hover:text-[var(--color-accent)] transition-colors"
               aria-label="Instagram"
             >
               <IconInstagram />
@@ -86,13 +86,13 @@ export default function Navbar({ storeName = 'MYKONOSLOVE', logoUrl }: NavbarPro
               href="https://facebook.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[var(--color-black)] hover:text-[var(--color-accent)] transition-colors"
+              className="text-white hover:text-[var(--color-accent)] transition-colors"
               aria-label="Facebook"
             >
               <IconFacebook />
             </a>
             {/* Carrito */}
-            <Link href="/carrito" className="relative text-[var(--color-black)] hover:text-[var(--color-accent)] transition-colors">
+            <Link href="/carrito" className="relative text-white hover:text-[var(--color-accent)] transition-colors">
               <ShoppingBag size={18} strokeWidth={1.5} />
               {count > 0 && (
                 <span className="absolute -top-2 -right-2 w-4 h-4 bg-[var(--color-accent)] text-white text-[9px] rounded-full flex items-center justify-center font-medium">

@@ -26,6 +26,11 @@ html {
   scroll-behavior: smooth;
 }
 
+html {
+  /* Aumenta todos los tamaños rem en 4px sobre la base de 16px */
+  font-size: 20px;
+}
+
 body {
   font-family: var(--font-body);
   background-color: #FFFFFF;
