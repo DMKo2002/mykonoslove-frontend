@@ -1,27 +1,19 @@
 import Link from 'next/link'
 
-interface Branch {
-  name: string
-  address: string
-  phone?: string
-}
-
 interface FooterProps {
   storeName?: string
-  address?: string
-  phone?: string
   whatsapp?: string
   email?: string
   instagramUrl?: string
   facebookUrl?: string
   tiktokUrl?: string
   pickupAddress?: string
-  branches?: Branch[]
+  branches?: { name: string; address: string; phone?: string }[]
 }
 
 function IconInstagram() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
     </svg>
   )
@@ -29,183 +21,86 @@ function IconInstagram() {
 
 function IconFacebook() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
     </svg>
   )
 }
 
-function IconTikTok() {
+function IconTwitter() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.28 6.28 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.93a8.16 8.16 0 0 0 4.78 1.52V7.01a4.85 4.85 0 0 1-1.01-.32z"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
     </svg>
   )
 }
 
-function IconWhatsApp() {
+function IconPinterest() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-      <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.546 21l3.98-.927A9.945 9.945 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.5a8.46 8.46 0 0 1-4.337-1.195l-.31-.184-3.22.75.77-3.12-.202-.32A8.5 8.5 0 1 1 12 20.5z"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>
     </svg>
   )
 }
 
 export default function Footer({
-  storeName = 'TIENDA',
-  address = '',
-  phone = '',
+  storeName = 'MYKONOSLOVE',
   whatsapp = '',
   email = '',
   instagramUrl,
   facebookUrl,
-  tiktokUrl,
-  pickupAddress,
-  branches = [],
 }: FooterProps) {
-  const hasSocial = instagramUrl || facebookUrl || tiktokUrl || whatsapp
-  const hasBranches = branches && branches.length > 0
-
   return (
-    <footer className="bg-[var(--color-charcoal)] text-white/70 mt-24">
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+    <footer className="bg-white border-t border-[var(--color-border)]">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
 
-          {/* Brand + social */}
-          <div className="md:col-span-1">
-            <p className="font-display text-2xl font-light tracking-[0.2em] uppercase text-white mb-4">
-              {storeName}
-            </p>
-            <p className="text-xs leading-relaxed text-white/50 mb-5">
-              Estilo que trasciende tendencia.
-            </p>
-            {hasSocial && (
-              <div className="flex items-center gap-3">
-                {instagramUrl && (
-                  <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors" aria-label="Instagram">
-                    <IconInstagram />
-                  </a>
-                )}
-                {facebookUrl && (
-                  <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors" aria-label="Facebook">
-                    <IconFacebook />
-                  </a>
-                )}
-                {tiktokUrl && (
-                  <a href={tiktokUrl} target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors" aria-label="TikTok">
-                    <IconTikTok />
-                  </a>
-                )}
-                {whatsapp && (
-                  <a href={`https://wa.me/${whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors" aria-label="WhatsApp">
-                    <IconWhatsApp />
-                  </a>
-                )}
-              </div>
+          {/* Logo / nombre */}
+          <Link href="/" className="text-base font-bold tracking-tight text-[var(--color-black)]">
+            {storeName}
+          </Link>
+
+          {/* Newsletter inline */}
+          <div className="flex items-center gap-2 text-xs text-[var(--color-gray)]">
+            <span className="tracking-wide">Suscribite al newsletter</span>
+            {instagramUrl && (
+              <a href={instagramUrl} target="_blank" rel="noopener noreferrer"
+                className="text-[var(--color-black)] hover:text-[var(--color-accent)] transition-colors ml-2">
+                <IconInstagram />
+              </a>
             )}
           </div>
-
-          {/* Links tienda */}
-          <div>
-            <p className="text-xs tracking-[0.15em] uppercase text-white mb-5">Tienda</p>
-            <ul className="space-y-3">
-              {[
-                { href: '/tienda', label: 'Todos los productos' },
-              ].map(l => (
-                <li key={l.href}>
-                  <Link href={l.href} className="text-xs text-white/50 hover:text-white transition-colors">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Sucursales o Contacto */}
-          <div>
-            {hasBranches ? (
-              <>
-                <p className="text-xs tracking-[0.15em] uppercase text-white mb-5">Sucursales</p>
-                <ul className="space-y-4">
-                  {branches.map((b, i) => (
-                    <li key={i} className="text-xs text-white/50 leading-relaxed">
-                      {b.name && <p className="text-white/70 font-medium mb-0.5">{b.name}</p>}
-                      {b.address && <p>{b.address}</p>}
-                      {b.phone && <p>{b.phone}</p>}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <>
-                <p className="text-xs tracking-[0.15em] uppercase text-white mb-5">Contacto</p>
-                <ul className="space-y-3 text-xs text-white/50">
-                  {address && <li>{address}</li>}
-                  {phone && <li>{phone}</li>}
-                  {whatsapp && (
-                    <li>
-                      <a href={`https://wa.me/${whatsapp.replace(/\D/g, '')}`} className="hover:text-white transition-colors">
-                        WhatsApp: {whatsapp}
-                      </a>
-                    </li>
-                  )}
-                  {email && (
-                    <li>
-                      <a href={`mailto:${email}`} className="hover:text-white transition-colors uppercase">
-                        {email}
-                      </a>
-                    </li>
-                  )}
-                </ul>
-              </>
-            )}
-          </div>
-
-          {/* Contacto (cuando hay sucursales) */}
-          <div>
-            <p className="text-xs tracking-[0.15em] uppercase text-white mb-5">Contacto</p>
-            <ul className="space-y-3 text-xs text-white/50">
-              {email && (
-                <li>
-                  <a href={`mailto:${email}`} className="hover:text-white transition-colors">
-                    {email}
-                  </a>
-                </li>
-              )}
-              {whatsapp && !hasBranches && null}
-            </ul>
-          </div>
-
         </div>
 
-        {/* Mapa de retiro */}
-        {pickupAddress && (
-          <div className="mt-12 pt-10 border-t border-white/10">
-            <p className="text-xs tracking-[0.15em] uppercase text-white mb-4">Punto de retiro</p>
-            <p className="text-xs text-white/50 mb-3">{pickupAddress}</p>
-            <div className="rounded-lg overflow-hidden h-52 w-full max-w-lg opacity-80">
-              <iframe
-                title="Mapa punto de retiro"
-                src={`https://maps.google.com/maps?q=${encodeURIComponent(pickupAddress)}&output=embed&z=15`}
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                loading="lazy"
-              />
-            </div>
-          </div>
-        )}
+        {/* Divider */}
+        <div className="border-t border-[var(--color-border)] my-6" />
 
-        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-[10px] tracking-widest uppercase text-white/30">
-            &copy; {new Date().getFullYear()} {storeName}
+        {/* Bottom bar */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-[var(--color-gray)]">
+            Copyright &copy; {new Date().getFullYear()} {storeName}
           </p>
-          <div className="flex flex-wrap items-center gap-4">
-            <a href="/politica-privacidad" className="text-[10px] tracking-widest uppercase text-white/30 hover:text-white/60 transition-colors">Privacidad</a>
-            <a href="/politica-cookies" className="text-[10px] tracking-widest uppercase text-white/30 hover:text-white/60 transition-colors">Cookies</a>
-            <a href="/terminos-condiciones" className="text-[10px] tracking-widest uppercase text-white/30 hover:text-white/60 transition-colors">Términos</a>
-            <p className="text-[10px] tracking-widest uppercase text-white/30">Desarrollo &mdash; CreArt</p>
+
+          {/* Social icons */}
+          <div className="flex items-center gap-4">
+            {facebookUrl && (
+              <a href={facebookUrl} target="_blank" rel="noopener noreferrer"
+                className="text-[var(--color-gray)] hover:text-[var(--color-black)] transition-colors">
+                <IconFacebook />
+              </a>
+            )}
+            <a href="#" className="text-[var(--color-gray)] hover:text-[var(--color-black)] transition-colors">
+              <IconTwitter />
+            </a>
+            <a href="#" className="text-[var(--color-gray)] hover:text-[var(--color-black)] transition-colors">
+              <IconPinterest />
+            </a>
+            {instagramUrl && (
+              <a href={instagramUrl} target="_blank" rel="noopener noreferrer"
+                className="text-[var(--color-gray)] hover:text-[var(--color-black)] transition-colors">
+                <IconInstagram />
+              </a>
+            )}
           </div>
         </div>
       </div>

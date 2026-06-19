@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,13 +6,19 @@
 
 :root {
   --font-display: 'Inter', system-ui, sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --color-cream: #FAF8F5;
-  --color-warm-white: #FDFCFB;
-  --color-charcoal: #1C1C1C;
-  --color-stone: #8C8278;
-  --color-border: #E8E2DA;
-  --color-accent: #C4A882;
+  --font-body: 'Inter', sans-serif;
+  /* Paleta Mykonoslove */
+  --color-white: #FFFFFF;
+  --color-light: #F5F5F5;
+  --color-black: #1A1A1A;
+  --color-gray: #888888;
+  --color-border: #E5E5E5;
+  --color-accent: #E07B39;
+  /* Aliases para compatibilidad con otros componentes */
+  --color-cream: #FFFFFF;
+  --color-warm-white: #FFFFFF;
+  --color-charcoal: #1A1A1A;
+  --color-stone: #888888;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,9 +29,9 @@ html {
 
 body {
   font-family: var(--font-body);
-  background-color: var(--color-cream);
-  color: var(--color-charcoal);
-  font-weight: 300;
+  background-color: #FFFFFF;
+  color: #1A1A1A;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
 }
 

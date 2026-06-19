@@ -69,22 +69,26 @@ export default function ProductCard({
           </div>
         )}
 
-        {/* Badge descuento */}
-        {discountPct && (
-          <div className="absolute top-2 left-2 bg-[var(--color-charcoal)] text-white text-[10px] tracking-[0.1em] uppercase px-2 py-1">
-            -{discountPct}%
+        {/* Badge nuevo / descuento */}
+        {discountPct ? (
+          <div className="absolute top-2 left-2 bg-[var(--color-accent)] text-white text-[10px] font-bold tracking-[0.08em] uppercase px-2 py-1">
+            SALE
+          </div>
+        ) : (
+          <div className="absolute top-2 left-2 bg-[var(--color-black)] text-white text-[10px] font-bold tracking-[0.08em] uppercase px-2 py-1">
+            NEW
           </div>
         )}
       </div>
 
       {/* Info */}
-      <div>
-        <p className="text-sm font-light text-[var(--color-charcoal)] leading-snug group-hover:text-[var(--color-stone)] transition-colors mb-1.5">
+      <div className="text-center">
+        <p className="text-sm text-[var(--color-black)] leading-snug group-hover:text-[var(--color-accent)] transition-colors mb-1.5">
           {name}
         </p>
 
         {/* Precio */}
-        <div className="flex items-center gap-2 mb-2.5">
+        <div className="flex items-center justify-center gap-2 mb-2.5">
           {showPrices ? (
             <>
               {retailPrice && (
