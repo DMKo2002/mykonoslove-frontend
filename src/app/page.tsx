@@ -43,7 +43,7 @@ export default async function HomePage() {
 
   const { data: config } = await supabase
     .from('store_config')
-    .select('logo_url, whatsapp_number, instagram_url, facebook_url, tiktok_url, pickup_address, pickup_enabled, branches')
+    .select('logo_url, whatsapp_number, notification_email, instagram_url, facebook_url, tiktok_url, pickup_address, pickup_enabled, branches')
     .eq('tenant_id', TENANT_ID)
     .single()
 
